@@ -11,30 +11,40 @@ import java.util.Properties;
  */
 public class ProjectEncoder {
 	
-	protected static String sourcePath;
-	protected static String destPath;
+	protected static String locPath;
+	protected static String mtpPath;
 	protected static String encPath;
 	public static String propFileName = "conf/mtpsync.properties";  //This is a default, override if desired
-	public static String phoneDir; //e.g., "storage/sdcard1/Music/JTM/Meet The Moores";
+	public static String mtpDir; //e.g., "storage/sdcard1/Music/JTM/Meet The Moores";
 	public static Properties props;
+	public static boolean flgEncode = false;
+	public static MTPSync_Action mtpAction;
 
 
 	public enum MTPSync_Param{
-		dir_SYNC_SOURCE,
-		dir_SYNC_TARGET,
+		dir_SYNC_LOCAL,
+		dir_SYNC_MTP,
 		dir_ENCODED_FILES
 	}
+	
+	public enum MTPSync_Action{
+		PUSH_Files,PULL_Files
+	}
+	protected static void copyPhoneFiles() throws Throwable{
+		pullMTPFiles();
+	}
+	
 	protected static void encodeFiles(){
-		File  dir = new File(sourcePath);
+		File  dir = new File(locPath);
 		File[] files = dir.listFiles();
-		File destDir = new File(destPath);
+		File destDir = new File(mtpPath);
 		Date dTgt, dSrc;
-		if(!destDir.exists())  new File(destPath).mkdirs();
+		if(!destDir.exists())  new File(mtpPath).mkdirs();
 		File tgt;
 		FLAC_Encoder enc = new FLAC_Encoder();
 		String tgtPath;
 		for(File f : files){
-			tgtPath = destPath + File.separator + f.getName().replace(".wav", ".flac");
+			tgtPath = mtpPath + File.separator + f.getName().replace(".wav", ".flac");
 			tgt = new File(tgtPath);
 			//Check to make sure the tgt needs updating
 			if(tgt.exists()){
@@ -57,48 +67,70 @@ public class ProjectEncoder {
 		return props;
 	}
 	
-	public static void setProjectPaths() {
-		sourcePath = props.getProperty(MTPSync_Param.dir_SYNC_SOURCE.name());
-		destPath = props.getProperty(MTPSync_Param.dir_SYNC_TARGET.name());
-		encPath = props.getProperty(MTPSync_Param.dir_ENCODED_FILES.name());
+	public static void setProjectPaths(boolean flgEncode) {
+		locPath = props.getProperty(MTPSync_Param.dir_SYNC_LOCAL.name());
+		mtpPath = props.getProperty(MTPSync_Param.dir_SYNC_MTP.name());
 		//destPath = "E:\\Audio Projects\\Songs 4 S\\mixdown\\flac";
 		//sourcePath ="E:\\Audio Projects\\Songs 4 S\\mixdown";
-		File sourceDir = MTPUtils.chooseDir(sourcePath,"Select source directory");
-		sourcePath = sourceDir.getAbsolutePath();
-
-		File encDir = MTPUtils.chooseDir(encPath,"Select encoding directory");
-		encPath = encDir.getAbsolutePath();
-		
+		File sourceDir = MTPUtils.chooseDir(locPath,"Select local directory");
+		locPath = sourceDir.getAbsolutePath();
+		if(flgEncode){
+			encPath = props.getProperty(MTPSync_Param.dir_ENCODED_FILES.name());
+			File encDir = MTPUtils.chooseDir(encPath,"Select encoding directory");
+			encPath = encDir.getAbsolutePath();
+		}
 		//File destDir = Utils.chooseDir(destPath,"Select destination directory");
 		//destPath = destDir.getAbsolutePath();
-		destPath = phoneDir;
+		mtpPath = mtpDir;
 	}
 	
 	public static void setProperties()
 			throws FileNotFoundException, IOException {
-		props.put(MTPSync_Param.dir_SYNC_SOURCE.name(), sourcePath);
-		props.put(MTPSync_Param.dir_ENCODED_FILES.name(), encPath);
-		props.put(MTPSync_Param.dir_SYNC_TARGET.name(), destPath);
+		props.put(MTPSync_Param.dir_SYNC_LOCAL.name(), locPath);
+		if(encPath!=null)props.put(MTPSync_Param.dir_ENCODED_FILES.name(), encPath);
+		props.put(MTPSync_Param.dir_SYNC_MTP.name(), mtpPath);
 		MTPUtils.writeProperties(propFileName, props);
 	}
 	
-	public static void updateMTPFiles() throws Throwable{
-		MTPUtils.updateFilesADB(encPath,destPath);
+	public static void pushMTPFiles() throws Throwable{
+		MTPUtils.pushFilesADB(encPath,mtpPath);
+	}
+	
+	public static void pullMTPFiles() throws Throwable{
+		MTPUtils.pullFilesADB(locPath,mtpPath);
 	}
 	
 	public static void setParams(){
 		//Overwrite in project encoder instantiation
 		//e.g.,
-			//phoneDir = MY_phoneDir;
+			//mtpDir = MY_phoneDir;
 			//propFileName = MY_propFileName;
+		mtpDir="storage/sdcard1/Music/JTM/Meet The Moores";
+		propFileName = "mtm.props";
+		mtpAction = MTPSync_Action.PULL_Files;
+		flgEncode=false;
+		
 	}
 	
 	public static void main(String[]args) throws Throwable{
 		setParams();
 		props = getProperties();
-		setProjectPaths();
-		encodeFiles();
-		updateMTPFiles();	
+
+		//If action==copyFromPhone
+		if(mtpAction.equals(MTPSync_Action.PULL_Files)){
+			setProjectPaths(flgEncode);
+			setProperties();
+			pullMTPFiles();
+		}
+		//If action==pushToPhone
+		else if(mtpAction.equals(MTPSync_Action.PUSH_Files)){
+
+			setProjectPaths(flgEncode);
+			setProperties();
+			encodeFiles();
+			pushMTPFiles();	
+
+		}
 		setProperties();
 		System.exit(0);
 	}

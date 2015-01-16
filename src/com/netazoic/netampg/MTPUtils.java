@@ -271,10 +271,10 @@ public class MTPUtils {
         }
     }
     
-	public static void updateFilesADB(String srcPath,String destPath) throws Throwable{
+	public static void pushFilesADB(String srcPath,String destPath) throws Throwable{
 		File srcDir = new File(srcPath);
-		Map<String,FileMTP> map  = loadMTPDirMap(destPath);
-		if(map == null){
+		Map<String,FileMTP> mapMTP  = loadMTPDirMap(destPath);
+		if(mapMTP == null){
 			System.out.println("Problem loading the MTP directory.");
 			return;
 		}
@@ -285,7 +285,7 @@ public class MTPUtils {
 		for (File ff : fileList){
 			flgPush = false;
 			String n = ff.getName();
-			currFile = map.get(ff.getName());
+			currFile = mapMTP.get(ff.getName());
 			Date d = new Date(ff.lastModified());
 			if(currFile == null) flgPush = true;
 			if(currFile != null && currFile.lastUpdate.before(d)) flgPush = true;
@@ -293,6 +293,35 @@ public class MTPUtils {
 			if(flgPush){
 				System.out.println("Copying " + ff.getName() + " to " + destPath);
 				cmd = "adb push \"" +  srcPath + File.separator + ff.getName() + "\" \"" + destPath + "\"";
+				List<String> ret2 = MTPUtils.runProcess(true, cmd);
+			}
+		}
+
+	}
+	
+	public static void pullFilesADB(String locPath,String mtpPath) throws Throwable{
+		//Pull any updated files from the phone
+		File locDir = new File(locPath);
+		Map<String,FileMTP> mapMTP  = loadMTPDirMap(mtpPath);
+		if(mapMTP == null){
+			System.out.println("Problem loading the MTP directory.");
+			return;
+		}
+		FileMTP currFile;
+		File[] fileList = locDir.listFiles();
+		String cmd;
+		boolean flgPull = false;
+		for (File ff : fileList){
+			flgPull = false;
+			String n = ff.getName();
+			currFile = mapMTP.get(ff.getName());
+			Date dMTP = new Date(ff.lastModified());
+			if(currFile == null) flgPull = true;
+			if(currFile != null && currFile.lastUpdate.after(dMTP)) flgPull = true;
+
+			if(flgPull){
+				System.out.println("Copying " + mtpPath + " to " +  ff.getName());
+				cmd = "adb pull \"" + mtpPath + "\" " + locPath + File.separator;
 				List<String> ret2 = MTPUtils.runProcess(true, cmd);
 			}
 		}

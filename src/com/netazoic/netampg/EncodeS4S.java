@@ -9,16 +9,17 @@ public class EncodeS4S extends ProjectEncoder{
 
 
 	public static void setParams(){
-		phoneDir = MY_phoneDir;
+		mtpDir = MY_phoneDir;
 		propFileName = MY_propFileName;
+		flgEncode = true;
 	}
 	
 	public static void main(String[]args) throws Throwable{
 		setParams();
 		props = getProperties();
-		setProjectPaths();
+		setProjectPaths(flgEncode);
 		encodeFiles();
-		updateMTPFiles();	
+		pushMTPFiles();	
 		setProperties();
 		System.exit(0);
 	}
