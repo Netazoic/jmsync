@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
@@ -136,6 +137,7 @@ public class MTPUtils {
 		Files.copy(srcDir.toPath(), destDir.toPath(), StandardCopyOption.REPLACE_EXISTING);
 	
 	}
+	
 
 	private static Map<String,FileMTP> loadMTPDirMap(String dir) throws ParseException{
 		String cmd = "adb shell ls -ls \"" + dir + "\"";

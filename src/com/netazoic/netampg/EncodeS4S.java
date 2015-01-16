@@ -1,12 +1,5 @@
 package com.netazoic.netampg;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-
-import javax.swing.filechooser.FileSystemView;
-
-import android.text.style.SuperscriptSpan;
 
 
 public class EncodeS4S extends ProjectEncoder{

@@ -9,12 +9,12 @@ import java.util.Properties;
 /*
  * Encode project audio files from wav to flac
  */
-public abstract class ProjectEncoder {
+public class ProjectEncoder {
 	
 	protected static String sourcePath;
 	protected static String destPath;
 	protected static String encPath;
-	public static String propFileName; //e.g., "conf/mtpsync.properties";
+	public static String propFileName = "conf/mtpsync.properties";  //This is a default, override if desired
 	public static String phoneDir; //e.g., "storage/sdcard1/Music/JTM/Meet The Moores";
 	public static Properties props;
 
