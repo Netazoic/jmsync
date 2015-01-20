@@ -1,4 +1,4 @@
-package com.netazoic.netampg;
+package com.netazoic.netamtp;
 
 import java.io.File;
 import javaFlacEncoder.FLAC_FileEncoder;

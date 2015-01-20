@@ -1,0 +1,6 @@
+#MTPSync Props
+#Fri Jan 16 22:24:31 PST 2015
+dir_ENCODED_FILES=E\:\\Audio Projects\\Meet The Moores\\_mixdown\\flac
+dir_SYNC_MTP=/storage/sdcard1/Music/JTM/Meet The Moores
+dir_SYNC_LOCAL=E\:\\Audio Projects\\Meet The Moores\\_mixdown
+flgEncode=true

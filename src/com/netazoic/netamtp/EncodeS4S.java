@@ -1,15 +1,15 @@
-package com.netazoic.netampg;
+package com.netazoic.netamtp;
 
 
 
-public class EncodeS4S extends ProjectEncoder{
+public class EncodeS4S extends MTPSync{
 	public static String MY_phoneDir = "storage/sdcard1/Music/JTM/Meet The Moores";
 	public static String MY_propFileName = "conf/s4s_sync.properties";
 
 
 
 	public static void setParams(){
-		mtpDir = MY_phoneDir;
+		mtpPath = MY_phoneDir;
 		propFileName = MY_propFileName;
 		flgEncode = true;
 	}
@@ -17,10 +17,10 @@ public class EncodeS4S extends ProjectEncoder{
 	public static void main(String[]args) throws Throwable{
 		setParams();
 		props = getProperties();
-		setProjectPaths(flgEncode);
-		encodeFiles();
+		setProjectPaths(true,true,flgEncode);
+		encodeFiles(locPath,encPath);
 		pushMTPFiles();	
-		setProperties();
+		writeProperties();
 		System.exit(0);
 	}
 
