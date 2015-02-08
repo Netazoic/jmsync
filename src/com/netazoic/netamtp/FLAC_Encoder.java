@@ -6,6 +6,7 @@ import javaFlacEncoder.FLAC_FileEncoder;
 public class FLAC_Encoder {
 
 	public void encodeFile(File src, File tgt){
+		System.out.println("Start of enc.encodeFile");
 		FLAC_FileEncoder flac = new FLAC_FileEncoder();
 		flac.encode(src, tgt);
 		flac = null;

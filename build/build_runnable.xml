@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="MTPSync" default="dist" basedir=".">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+	<property file="build.properties" />
+	<property file="${user.home}/build.properties" />
+
+	<!-- ==================== File and Directory Names ======================== -->
+
+	<!-- override app.name and app.version in build.properties file -->
+	<property name="app.name" value="MTPSync" />
+	<property name="app.name.dist" value="MTPSync" />
+	<property name="app.version" value="1.1" />
+	<property name="app.path" value="/${app.name}" />
+
+	<property name="app.home" value=".." />
+	<property name="build.home" value="${app.home}/build" />
+	<property name="class.home" value="${app.home}/bin" />
+	<property name="bin.home" value="${app.home}/bin" />
+	<property name="conf.home" value="${app.home}/conf" />
+	<property name="dist.home" value="${app.home}/dist" />
+
+    <target name="create_run_jar">
+        <jar destfile="${build.home}/${app.name.dist}-${app.version}.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="com.netazoic.netamtp.MTPSync"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${class.home}"/>
+            <zipfileset 
+            	excludes="META-INF/*.SF" 
+            	src="${app.home}/lib/javaFlacEncoder-0.3.1-all/javaFlacEncoder-0.3.1.jar"/>
+        </jar>
+    </target>
+	
+	<target name="dist" depends="create_run_jar" 
+		description="Build a 'runnable jar' distribution of MTPSync">
+		<copy toDir="${dist.home}/">
+			<fileset dir="${build.home}/" includes="**/*.jar" />
+		</copy>
+		<copy toDir="${dist.home}/bin">
+			<fileset dir="${bin.home}/" includes="*" />
+		</copy>
+		<copy toDir="${dist.home}/conf">
+			<fileset dir="${conf.home}/" includes="*" />
+		</copy>
+
+		
+	</target>
+</project>

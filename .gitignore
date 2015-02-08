@@ -13,3 +13,7 @@ lib/android.jar
 lib/jave-1.0.2/
 netampg.jar
 lib/javaFlacEncoder-0.3.1-all.tar.gz
+/bin/
+build/netamtp.jar
+/class/
+/classes/
