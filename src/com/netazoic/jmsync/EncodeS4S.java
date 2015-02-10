@@ -1,4 +1,4 @@
-package com.netazoic.netamtp;
+package com.netazoic.jmsync;
 
 
 
@@ -16,9 +16,8 @@ public class EncodeS4S extends MTPSync{
 	
 	public static void main(String[]args) throws Throwable{
 		setParams();
-		props = getProperties();
 		setProjectPaths(true,true,flgEncode);
-		encodeFiles(locPath,encPath);
+		encodeFiles(locPath,encPath,false);
 		pushMTPFiles();	
 		writeProperties();
 		System.exit(0);

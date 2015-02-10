@@ -1,4 +1,4 @@
-NetaMTP
+JMSync
 
 Quick and Dirty utility project for copying a set of files to a named MTP directory (i.e., a directory on an Android phone).
 

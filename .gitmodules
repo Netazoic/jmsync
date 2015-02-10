@@ -1,0 +1,3 @@
+[submodule "lib/JustFLAC"]
+	path = lib/JustFLAC
+	url = git@github.com:drogatkin/JustFLAC.git

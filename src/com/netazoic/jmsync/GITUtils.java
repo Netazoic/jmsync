@@ -1,4 +1,4 @@
-package com.netazoic.netamtp;
+package com.netazoic.jmsync;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,14 +62,14 @@ public class GITUtils {
 		SyncUtils.checkErrors(rtn);
 	}	
 	
-	public static void pullFiles(String repoPath, String gitBranch,String gitRemote){
+	public static void pullFiles(String repoPath, String gitRemote,String gitBranch){
 		String cmd = "git pull \"" + gitRemote + "\" \"" + gitBranch + "\"";
 		File workingDir = gitDir(repoPath);
 		List<String> rtn =SyncUtils.runProcess(workingDir,true,cmd);
 		SyncUtils.checkErrors(rtn);
 	}	
 	
-	public static void pushFiles(String repoPath,String gitBranch,String gitRemote){
+	public static void pushFiles(String repoPath,String gitRemote,String gitBranch){
 		String cmd = "git push \"" + gitRemote + "\" \"" + gitBranch + "\"";
 		File workingDir = gitDir(repoPath);
 		List<String> rtn =SyncUtils.runProcess(workingDir,true,cmd);

@@ -32,8 +32,8 @@ if [[ ($# -eq 2) && (($1 -eq "-pname") || ($1 -eq "-pCode")) ]]; then
 fi
 
 
-CP="./bin"
-#CP="./dist/netamtp.jar"
+CP="./classes"
+#CP="./dist/MTPSync-1.1.jar"
 
 echo "Params are now: $PARAMS"
 cmd="java $JPDA_OPTS -cp $CP com.netazoic.netamtp.GITSync $PARAMS"

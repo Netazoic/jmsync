@@ -1,4 +1,4 @@
-package com.netazoic.netamtp;
+package com.netazoic.jmsync;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
+
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 /*
  * Sync files between local workstation and MTP device (i.e., an Android phone)
@@ -16,11 +18,12 @@ public class MTPSync {
 	protected static String locPath;
 	protected static String mtpPath;
 	protected static String encPath;
-	public static String pName;  //project name
+	public static String pCode;  //project name
 	public static String propFileName = "conf/mtpsync.properties";  //This is a default, override if desired
 	//public static String mtpDir; //e.g., "storage/sdcard1/Music/JTM/Meet The Moores";
 	public static Properties props;
 	public static Boolean flgEncode = null;
+	public static Boolean flgForce = false;
 	public static MTPSync_Action mtpAction;
 	private static HashMap settings;
 
@@ -33,11 +36,13 @@ public class MTPSync {
 	public enum MTPSync_Action{
 		push,pull,clearMTP,dirMTP
 	}
-	protected static void copyPhoneFiles() throws Throwable{
-		pullMTPFiles();
+
+	public static void clearMTPDir(){
+		//TODO
+		//MTPUtils.clearMTPDir(mtpPath);
 	}
 
-	protected static void encodeFiles(String locPath, String encPath){
+	protected static void encodeFiles(String locPath, String encPath, boolean flgForce) throws UnsupportedAudioFileException, IOException{
 		File  dir = new File(locPath);
 		File[] files = dir.listFiles();
 		File destDir = new File(encPath);
@@ -47,10 +52,12 @@ public class MTPSync {
 		FLAC_Encoder enc = new FLAC_Encoder();
 		String tgtPath;
 		for(File f : files){
+			if(f.isDirectory()) continue;
 			tgtPath = encPath + File.separator + f.getName().replace(".wav", ".flac");
 			tgt = new File(tgtPath);
 			//Check to make sure the tgt needs updating
-			if(tgt.exists()){
+			//unless flgForce is in effect
+			if(!flgForce && tgt.exists()){
 				dTgt = new Date(tgt.lastModified());
 				dSrc = new Date(f.lastModified());
 				if(dTgt.after(dSrc) || dTgt.equals(dSrc)) continue;
@@ -58,11 +65,6 @@ public class MTPSync {
 			System.out.println("Encoding " +f.getName());
 			enc.encodeFile(f, tgt);
 		}
-	}
-
-	public static void clearMTPDir(){
-		//TODO
-		//MTPUtils.clearMTPDir(mtpPath);
 	}
 
 	public static MTPSync_Action getAction(){
@@ -86,10 +88,10 @@ public class MTPSync {
 
 
 
-	public static  Properties getProperties()
+	public static  Properties getProperties(String myPropFileName)
 			throws IOException {
-		Properties props = SyncUtils.getProperties(propFileName);
-		if(props == null) props = SyncUtils.createPropertiesFile(propFileName);
+		Properties props = SyncUtils.getProperties(myPropFileName);
+		if(props == null) props = SyncUtils.createPropertiesFile(myPropFileName);
 		locPath = props.getProperty(MTPSync_Param.dir_SYNC_LOCAL.name());
 		mtpPath = props.getProperty(MTPSync_Param.dir_SYNC_MTP.name());
 		String temp = props.getProperty(MTPSync_Param.mtpAction.name());
@@ -101,27 +103,11 @@ public class MTPSync {
 
 
 
-	public static void setProjectPaths(Boolean setLocal, Boolean setMTP, Boolean flgEncode) throws IOException {
-		if(setLocal){
-			File locDir = SyncUtils.chooseDir(locPath,"Select local directory");
-			locPath = locDir.getAbsolutePath();
-		}
-		if(flgEncode){
-			encPath = props.getProperty(MTPSync_Param.dir_ENCODED_FILES.name());
-			if(encPath ==null) encPath = locPath;
-			File encDir = SyncUtils.chooseDir(encPath,"Select encoding directory");
-			encPath = encDir.getAbsolutePath();
-		}
-		if(setMTP){
-			File f = new File(System.getProperty("user.home"), "Desktop");
-			f.listFiles();
-			String msg = "Specify MTP directory: e.g., '/sdcard/Music':";
-			mtpPath = SyncUtils.getInput(msg, mtpPath);
-			//MTPUtils.verifyMTPDir(mtpPath);
-		}
-		writeProperties();
+	private static void out(String strMessage)
+	{
+		System.out.println(strMessage);
 	}
-
+	
 	public static void pushMTPFiles() throws Throwable{
 		if(flgEncode)MTPUtils.pushSyncFilesADB(encPath, mtpPath);
 		else MTPUtils.pushSyncFilesADB(locPath, mtpPath);
@@ -131,7 +117,7 @@ public class MTPSync {
 		MTPUtils.pullSyncFilesADB(locPath,mtpPath);
 	}
 
-	public static void setParams(String[] args){
+	public static void setParams(String[] args) throws IOException{
 		int i=0;
 		if(args == null ) return;
 		settings = new HashMap<String,String>();
@@ -139,9 +125,9 @@ public class MTPSync {
 			if(k.equals("-mtpPath")){
 				mtpPath = k;
 			}
-			if(k.equals("-pName")){
-				pName = args[i+1];
-				propFileName = "conf/" + pName + ".properties";
+			if(k.equals("-pCode")){
+				pCode = args[i+1];
+				propFileName = "conf/" + pCode + ".properties";
 			}
 			if(k.contains(".properties")){
 				propFileName = k;
@@ -152,11 +138,64 @@ public class MTPSync {
 			if(k.equals("pull")){
 				mtpAction=MTPSync_Action.pull;
 			}
+			if(k.equals("-f")){
+				flgForce=true;
+			}
+			if(k.equals("-u") || k.equals("--usage")){
+				usage();
+			}
+			if(k.equals("-h") || k.equals("--help")){
+				usage();
+			}
 			i++;
 
 		}
+		if(pCode == null){
+			pCode = SyncUtils.getInput("Short code for the project you are syncing:", "mtm");
+			if(pCode == null) System.exit(1);
+			propFileName = "conf/" + pCode + ".properties";
+		}
+		if(propFileName == null) propFileName = "conf/" + pCode + ".properties";
+		props = getProperties(propFileName);
 
+	}
+	
+	public static void setProjectPaths(Boolean setLocal, Boolean setMTP, Boolean flgEncode) throws IOException {
+		if(setLocal){
+			if(locPath == null){
+				File locDir = SyncUtils.chooseDir(locPath,"Select local directory");
+				locPath = locDir.getAbsolutePath();
+			}
+		}
+		if(flgEncode){
+			encPath = props.getProperty(MTPSync_Param.dir_ENCODED_FILES.name());
+			if(encPath ==null){
+				encPath = locPath;
+				File encDir = SyncUtils.chooseDir(encPath,"Select encoding directory");
+				encPath = encDir.getAbsolutePath();
+			}
+	
+		}
+		if(setMTP){
+			if(mtpPath == null){
+				File f = new File(System.getProperty("user.home"), "Desktop");
+				f.listFiles();
+				String msg = "Specify MTP directory: e.g., '/sdcard/Music':";
+				mtpPath = SyncUtils.getInput(msg, mtpPath);
+				//MTPUtils.verifyMTPDir(mtpPath);
+			}
+		}
+		writeProperties();
+	}
 
+	public static void usage(){
+		out("jmsync.MTPSync: usage:");
+		out("\tjava MTPSync -h");
+		out("\tjava MTPSync [<project-code>]  [<prop-file>] [-f] [<action:push|pull>]");
+		out("");
+		out("params:");
+		out(" -f      :  force re-encoding even if source files not updated");
+		System.exit(1);
 	}
 
 	public static void writeProperties()
@@ -172,7 +211,6 @@ public class MTPSync {
 
 	public static void main(String[]args) throws Throwable{
 		setParams(args);
-		props = getProperties();
 		mtpAction = getAction();
 		boolean flgLocal, flgMTP  = false;
 		//If action==copyFromPhone
@@ -189,7 +227,7 @@ public class MTPSync {
 				flgLocal=true;flgMTP=true;
 				if(flgEncode == null) getEncoding();
 				setProjectPaths(flgLocal,flgMTP,flgEncode);
-				if(flgEncode) encodeFiles(locPath,encPath);
+				if(flgEncode) encodeFiles(locPath,encPath,flgForce);
 				pushMTPFiles();
 				break;
 			case clearMTP:

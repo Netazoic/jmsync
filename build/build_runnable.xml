@@ -8,14 +8,14 @@
 	<!-- ==================== File and Directory Names ======================== -->
 
 	<!-- override app.name and app.version in build.properties file -->
-	<property name="app.name" value="MTPSync" />
-	<property name="app.name.dist" value="MTPSync" />
+	<property name="app.name" value="JMSync" />
+	<property name="app.name.dist" value="JMSync" />
 	<property name="app.version" value="1.1" />
 	<property name="app.path" value="/${app.name}" />
 
 	<property name="app.home" value=".." />
 	<property name="build.home" value="${app.home}/build" />
-	<property name="class.home" value="${app.home}/bin" />
+	<property name="class.home" value="${app.home}/classes" />
 	<property name="bin.home" value="${app.home}/bin" />
 	<property name="conf.home" value="${app.home}/conf" />
 	<property name="dist.home" value="${app.home}/dist" />
@@ -23,7 +23,7 @@
     <target name="create_run_jar">
         <jar destfile="${build.home}/${app.name.dist}-${app.version}.jar" filesetmanifest="mergewithoutmain">
             <manifest>
-                <attribute name="Main-Class" value="com.netazoic.netamtp.MTPSync"/>
+                <attribute name="Main-Class" value="com.netazoic.jmsync.MTPSync"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${class.home}"/>

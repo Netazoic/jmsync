@@ -1,4 +1,4 @@
-package com.netazoic.netamtp;
+package com.netazoic.jmsync;
 import jpmp.manager.DeviceManager;
 
 public class usbtest {

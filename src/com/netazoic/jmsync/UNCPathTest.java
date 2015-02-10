@@ -1,4 +1,4 @@
-package com.netazoic.netamtp;
+package com.netazoic.jmsync;
 
 import java.io.File;
 import java.net.MalformedURLException;
