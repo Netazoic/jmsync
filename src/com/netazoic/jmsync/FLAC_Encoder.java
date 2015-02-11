@@ -5,10 +5,6 @@ import java.io.IOException;
 import javaFlacEncoder.FLAC_FileEncoder;
 import javaFlacEncoder.StreamConfiguration;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 /*
  * Convert a PCM file (e.g., Wav file) into FLAC format.
@@ -51,15 +47,17 @@ public class FLAC_Encoder {
 	
 	
     public static void main(String[] args) {
-        FLAC_FileEncoder flacEncoder = new FLAC_FileEncoder();
+        FLAC_Encoder flacEncoder = new FLAC_Encoder();
         File inputFile = new File("hello.wav");
         File outputFile = new File("hello.flac");
-        //EncodingConfiguration ec = new EncodingConfiguration();
-        StreamConfiguration sc = new StreamConfiguration();
-        sc.setSampleRate(41000);
-        flacEncoder.setStreamConfig(sc);
 
-        flacEncoder.encode(inputFile, outputFile);
+        try {
+			flacEncoder.encodeFile(inputFile, outputFile);
+		} catch (UnsupportedAudioFileException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
         System.out.println("Done");
     }
 }

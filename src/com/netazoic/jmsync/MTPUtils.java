@@ -142,6 +142,7 @@ public class MTPUtils {
 		File mtpDir = new File(mtpPath);
 		int ctPull=0;
 		File locDir = new File(locPath);
+		if(!locDir.exists()) locDir.createNewFile();
 		Map<String,FileMTP> mapMTP  = loadMTPDirMap(mtpPath);
 		if(mapMTP == null){
 			System.out.println("Problem loading the MTP directory.");

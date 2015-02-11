@@ -19,7 +19,8 @@ public class MTPSync {
 	protected static String mtpPath;
 	protected static String encPath;
 	public static String pCode;  //project name
-	public static String propFileName = "conf/mtpsync.properties";  //This is a default, override if desired
+	public static String propFileName = "conf/mtm.properties";  //This is a default, override if desired
+	public static String mainPropFileName = "conf/mtpsync.properties";
 	//public static String mtpDir; //e.g., "storage/sdcard1/Music/JTM/Meet The Moores";
 	public static Properties props;
 	public static Boolean flgEncode = null;
@@ -30,7 +31,7 @@ public class MTPSync {
 	public enum MTPSync_Param{
 		dir_SYNC_LOCAL,
 		dir_SYNC_MTP,
-		dir_ENCODED_FILES, mtpAction, flgEncode, pName
+		dir_ENCODED_FILES, mtpAction, flgEncode, pCode
 	}
 
 	public enum MTPSync_Action{
@@ -151,7 +152,9 @@ public class MTPSync {
 
 		}
 		if(pCode == null){
-			pCode = SyncUtils.getInput("Short code for the project you are syncing:", "mtm");
+			Properties mainProps = SyncUtils.getProperties(mainPropFileName);
+			String lastPCode = mainProps.getProperty(MTPSync_Param.pCode.name());
+			pCode = SyncUtils.getInput("Short code for the project you are syncing:", lastPCode);
 			if(pCode == null) System.exit(1);
 			propFileName = "conf/" + pCode + ".properties";
 		}
@@ -185,7 +188,7 @@ public class MTPSync {
 				//MTPUtils.verifyMTPDir(mtpPath);
 			}
 		}
-		writeProperties();
+
 	}
 
 	public static void usage(){
@@ -200,6 +203,7 @@ public class MTPSync {
 
 	public static void writeProperties()
 			throws FileNotFoundException, IOException {
+		props.put(MTPSync_Param.pCode.name(), pCode);
 		props.put(MTPSync_Param.dir_SYNC_LOCAL.name(), locPath);
 		if(encPath!=null)props.put(MTPSync_Param.dir_ENCODED_FILES.name(), encPath);
 		props.put(MTPSync_Param.dir_SYNC_MTP.name(), mtpPath);
@@ -207,10 +211,16 @@ public class MTPSync {
 		if(flgEncode==null) flgEncode = false;
 		props.put(MTPSync_Param.flgEncode.name(), flgEncode.toString());
 		SyncUtils.writeProperties(propFileName, props);
+		//Update the main properties file with the code of most recent project
+		Properties mainProps = SyncUtils.getProperties(propFileName);
+		mainProps.put(MTPSync_Param.pCode.name(), pCode);
+		SyncUtils.writeProperties(mainPropFileName, mainProps);
+		
 	}
 
 	public static void main(String[]args) throws Throwable{
 		setParams(args);
+		writeProperties();
 		mtpAction = getAction();
 		boolean flgLocal, flgMTP  = false;
 		//If action==copyFromPhone
