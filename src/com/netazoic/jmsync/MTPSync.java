@@ -9,6 +9,8 @@ import java.util.Properties;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.netazoic.jmsync.itfc_Encoder.ENC_Format;
+
 /*
  * Sync files between local workstation and MTP device (i.e., an Android phone)
  * Optionally encode audio files on the way to MTP device
@@ -24,6 +26,7 @@ public class MTPSync {
 	//public static String mtpDir; //e.g., "storage/sdcard1/Music/JTM/Meet The Moores";
 	public static Properties props;
 	public static Boolean flgEncode = null;
+	public static ENC_Format encFormat;
 	public static Boolean flgForce = false;
 	public static MTPSync_Action mtpAction;
 	private static HashMap settings;
@@ -31,40 +34,49 @@ public class MTPSync {
 	public enum MTPSync_Param{
 		dir_SYNC_LOCAL,
 		dir_SYNC_MTP,
-		dir_ENCODED_FILES, mtpAction, flgEncode, pCode
+		dir_ENCODED_FILES, mtpAction, flgEncode, pCode, 
+		encFormat
 	}
 
 	public enum MTPSync_Action{
 		push,pull,clearMTP,dirMTP
 	}
 
+
 	public static void clearMTPDir(){
 		//TODO
 		//MTPUtils.clearMTPDir(mtpPath);
 	}
 
-	protected static void encodeFiles(String locPath, String encPath, boolean flgForce) throws UnsupportedAudioFileException, IOException{
+	protected static void encodeFiles(String locPath, String encPath, boolean flgForce) throws Exception {
 		File  dir = new File(locPath);
 		File[] files = dir.listFiles();
 		File destDir = new File(encPath);
 		Date dTgt, dSrc;
 		if(!destDir.exists())  new File(encPath).mkdirs();
 		File tgt;
-		FLAC_Encoder enc = new FLAC_Encoder();
+		Encoder<?> enc = (Encoder)encFormat.encClass.newInstance();
+		enc.encFormat = encFormat;
 		String tgtPath;
-		for(File f : files){
-			if(f.isDirectory()) continue;
-			tgtPath = encPath + File.separator + f.getName().replace(".wav", ".flac");
-			tgt = new File(tgtPath);
-			//Check to make sure the tgt needs updating
-			//unless flgForce is in effect
-			if(!flgForce && tgt.exists()){
-				dTgt = new Date(tgt.lastModified());
-				dSrc = new Date(f.lastModified());
-				if(dTgt.after(dSrc) || dTgt.equals(dSrc)) continue;
+		try{
+			for(File f : files){
+				if(f.isDirectory()) continue;
+				tgtPath = encPath + File.separator + f.getName().replace(".wav", "." + enc.getExtension());
+				tgt = new File(tgtPath);
+				//Check to make sure the tgt needs updating
+				//unless flgForce is in effect
+				if(!flgForce && tgt.exists()){
+					dTgt = new Date(tgt.lastModified());
+					dSrc = new Date(f.lastModified());
+					if(dTgt.after(dSrc) || dTgt.equals(dSrc)) continue;
+				}
+				System.out.println("Encoding " +f.getName());
+				enc.encodeFile(f, tgt);
 			}
-			System.out.println("Encoding " +f.getName());
-			enc.encodeFile(f, tgt);
+		}catch(UnsupportedAudioFileException ex){
+			throw new Exception(ex);
+		}catch(IOException ex){
+			throw new Exception(ex);
 		}
 	}
 
@@ -83,7 +95,20 @@ public class MTPSync {
 	}
 
 	public static boolean getEncoding(){
-		flgEncode = SyncUtils.getYesNo("Encode files before pushing?", flgEncode);
+		if(flgEncode == null) flgEncode = SyncUtils.getYesNo("Encode files before pushing?", flgEncode);
+		if(flgEncode){
+			String[] options = {"none","mp3","flac"};
+			String defaultOpt = encFormat!=null?encFormat.name():"flac";
+			String temp = SyncUtils.getInput("Encoding format:", options,defaultOpt);
+			if(temp == null) System.exit(1);
+			ENC_Format newFormat = ENC_Format.valueOf(temp);
+			encFormat = newFormat;
+			if(encFormat.equals(ENC_Format.none)){
+				flgEncode = false;
+				encPath = null;
+			}
+			else encPath = locPath + File.separator + encFormat.name();
+		}
 		return flgEncode;
 	}
 
@@ -99,6 +124,8 @@ public class MTPSync {
 		if(temp!=null) mtpAction = MTPSync_Action.valueOf(temp);
 		temp = props.getProperty(MTPSync_Param.flgEncode.name());
 		if(temp!=null) flgEncode = Boolean.parseBoolean(temp);
+		temp = props.getProperty(MTPSync_Param.encFormat.name());
+		if(temp!=null) encFormat = ENC_Format.valueOf(temp);
 		return props;
 	}
 
@@ -108,7 +135,7 @@ public class MTPSync {
 	{
 		System.out.println(strMessage);
 	}
-	
+
 	public static void pushMTPFiles() throws Throwable{
 		if(flgEncode)MTPUtils.pushSyncFilesADB(encPath, mtpPath);
 		else MTPUtils.pushSyncFilesADB(locPath, mtpPath);
@@ -160,34 +187,35 @@ public class MTPSync {
 		}
 		if(propFileName == null) propFileName = "conf/" + pCode + ".properties";
 		props = getProperties(propFileName);
-
+		
+		getEncoding();
+		setProjectPaths();
 	}
-	
-	public static void setProjectPaths(Boolean setLocal, Boolean setMTP, Boolean flgEncode) throws IOException {
-		if(setLocal){
+
+	public static void setProjectPaths() throws IOException {
+
 			if(locPath == null){
 				File locDir = SyncUtils.chooseDir(locPath,"Select local directory");
 				locPath = locDir.getAbsolutePath();
+				if(locPath==null) System.exit(1);
 			}
-		}
-		if(flgEncode){
-			encPath = props.getProperty(MTPSync_Param.dir_ENCODED_FILES.name());
+
+
 			if(encPath ==null){
 				encPath = locPath;
 				File encDir = SyncUtils.chooseDir(encPath,"Select encoding directory");
 				encPath = encDir.getAbsolutePath();
+				if(encPath==null) System.exit(1);
 			}
-	
-		}
-		if(setMTP){
+
 			if(mtpPath == null){
 				File f = new File(System.getProperty("user.home"), "Desktop");
 				f.listFiles();
 				String msg = "Specify MTP directory: e.g., '/sdcard/Music':";
 				mtpPath = SyncUtils.getInput(msg, mtpPath);
+				if(mtpPath==null) System.exit(1);
 				//MTPUtils.verifyMTPDir(mtpPath);
 			}
-		}
 
 	}
 
@@ -210,12 +238,14 @@ public class MTPSync {
 		//props.put(MTPSync_Param.mtpAction.name(), mtpAction.name());
 		if(flgEncode==null) flgEncode = false;
 		props.put(MTPSync_Param.flgEncode.name(), flgEncode.toString());
+		props.put(MTPSync_Param.encFormat.name(), encFormat.name());
 		SyncUtils.writeProperties(propFileName, props);
+
 		//Update the main properties file with the code of most recent project
 		Properties mainProps = SyncUtils.getProperties(propFileName);
 		mainProps.put(MTPSync_Param.pCode.name(), pCode);
 		SyncUtils.writeProperties(mainPropFileName, mainProps);
-		
+
 	}
 
 	public static void main(String[]args) throws Throwable{
@@ -227,27 +257,16 @@ public class MTPSync {
 		try{
 			switch(mtpAction){
 			case pull:
-				flgLocal=true;
-				flgMTP=true;
-				flgEncode = false;
-				setProjectPaths(flgLocal,flgMTP,flgEncode);
 				pullMTPFiles();
 				break;
 			case push:
-				flgLocal=true;flgMTP=true;
-				if(flgEncode == null) getEncoding();
-				setProjectPaths(flgLocal,flgMTP,flgEncode);
-				if(flgEncode) encodeFiles(locPath,encPath,flgForce);
+				if(flgEncode) encodeFiles(locPath,encPath,false);
 				pushMTPFiles();
 				break;
 			case clearMTP:
-				flgLocal=false;flgMTP=true;flgEncode=false;
-				setProjectPaths(flgLocal,flgMTP,flgEncode);
 				clearMTPDir();
 				break;
 			case dirMTP:
-				flgLocal=false;flgMTP=true;flgEncode=false;
-				setProjectPaths(flgLocal,flgMTP,flgEncode);
 				MTPUtils.verifyMTPDir(mtpPath);
 				MTPUtils.lsDir(mtpPath);
 				break;

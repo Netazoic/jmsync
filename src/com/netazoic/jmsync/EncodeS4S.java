@@ -16,7 +16,7 @@ public class EncodeS4S extends MTPSync{
 	
 	public static void main(String[]args) throws Throwable{
 		setParams();
-		setProjectPaths(true,true,flgEncode);
+		setProjectPaths();
 		encodeFiles(locPath,encPath,false);
 		pushMTPFiles();	
 		writeProperties();
