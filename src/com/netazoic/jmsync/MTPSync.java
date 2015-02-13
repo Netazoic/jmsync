@@ -200,14 +200,6 @@ public class MTPSync {
 				if(locPath==null) System.exit(1);
 			}
 
-
-			if(encPath ==null){
-				encPath = locPath;
-				File encDir = SyncUtils.chooseDir(encPath,"Select encoding directory");
-				encPath = encDir.getAbsolutePath();
-				if(encPath==null) System.exit(1);
-			}
-
 			if(mtpPath == null){
 				File f = new File(System.getProperty("user.home"), "Desktop");
 				f.listFiles();
@@ -238,7 +230,7 @@ public class MTPSync {
 		//props.put(MTPSync_Param.mtpAction.name(), mtpAction.name());
 		if(flgEncode==null) flgEncode = false;
 		props.put(MTPSync_Param.flgEncode.name(), flgEncode.toString());
-		props.put(MTPSync_Param.encFormat.name(), encFormat.name());
+		if(encFormat!=null) props.put(MTPSync_Param.encFormat.name(), encFormat.name());
 		SyncUtils.writeProperties(propFileName, props);
 
 		//Update the main properties file with the code of most recent project
