@@ -3,14 +3,12 @@ lib/Sarkie-mtpfix/
 lib/Sarkie-mtpfix/
 lib/android.jar/
 lib/javaFlacEncoder-0.3.1-all/
-lib/jave-1.0.2/ 
 lib/jmtp/
 lib/jusbpmp-0.1.5/
 .settings
 .classpath
 .project
 lib/android.jar
-lib/jave-1.0.2/
 netampg.jar
 lib/javaFlacEncoder-0.3.1-all.tar.gz
 /bin/
@@ -20,3 +18,4 @@ build/*.jar
 _archive
 samples
 docs
+lib/jave-1.0.2
