@@ -127,6 +127,11 @@ public class MTPUtils {
 		String cmd = "adb shell \"mkdir \'" + mtpPath + "\'\"";
 		List<String>rtn = SyncUtils.runProcess(true, cmd);
 	}
+	
+	public static void rm (String mtpPath){
+		String cmd = "adb shell \"rm -r \'" + mtpPath + "\'\"";
+		List<String> rtn = SyncUtils.runProcess(true,cmd);
+	}
 
 	public static void pullFilesADB(String locPath,String mtpPath){
 		//String cmd = "cd " + locPath;

@@ -44,8 +44,7 @@ public class MTPSync {
 
 
 	public static void clearMTPDir(){
-		//TODO
-		//MTPUtils.clearMTPDir(mtpPath);
+		MTPUtils.rm(mtpPath);
 	}
 
 	protected static void encodeFiles(String locPath, String encPath, boolean flgForce) throws Exception {
@@ -95,7 +94,9 @@ public class MTPSync {
 	}
 
 	public static boolean getEncoding(){
-		if(flgEncode == null) flgEncode = SyncUtils.getYesNo("Encode files before pushing?", flgEncode);
+		if(mtpAction.equals(MTPSync_Action.push)) flgEncode = true;
+		else flgEncode = false;
+		//if(mtpAction.equals(MTPSync_Action.push)) flgEncode = SyncUtils.getYesNo("Encode files before pushing?", flgEncode);
 		if(flgEncode){
 			String[] options = {"none","mp3","flac"};
 			String defaultOpt = encFormat!=null?encFormat.name():"flac";
@@ -187,7 +188,7 @@ public class MTPSync {
 		}
 		if(propFileName == null) propFileName = "conf/" + pCode + ".properties";
 		props = getProperties(propFileName);
-		
+		mtpAction = getAction();
 		getEncoding();
 		setProjectPaths();
 	}
@@ -243,7 +244,7 @@ public class MTPSync {
 	public static void main(String[]args) throws Throwable{
 		setParams(args);
 		writeProperties();
-		mtpAction = getAction();
+
 		boolean flgLocal, flgMTP  = false;
 		//If action==copyFromPhone
 		try{
