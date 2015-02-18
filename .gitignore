@@ -19,3 +19,4 @@ _archive
 samples
 docs
 lib/jave-1.0.2
+conf/*.properties
