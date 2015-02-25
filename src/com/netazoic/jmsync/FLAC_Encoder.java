@@ -7,6 +7,8 @@ import javaFlacEncoder.FLAC_FileEncoder;
 import javaFlacEncoder.StreamConfiguration;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import com.netazoic.jmsync.itfc.itfc_Encoder;
 /*
  * Convert a PCM file (e.g., Wav file) into FLAC format.
  * The generic use of this is for transfer to an MTP player, and in my case, and Android phone.

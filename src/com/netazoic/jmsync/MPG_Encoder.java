@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import com.netazoic.jmsync.itfc.itfc_Encoder;
 /*
  * Convert a PCM file (e.g., Wav file) into MPG format.
  * The generic use of this is for transfer to an MTP player, and in my case, and Android phone.

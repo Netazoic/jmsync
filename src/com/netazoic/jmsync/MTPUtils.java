@@ -170,7 +170,7 @@ public class MTPUtils {
 			if(locFile == null) flgPull = true;
 			if(locFile != null){
 				locLastMod = new Date(locFile.lastModified());
-				if(mtpFile.lastUpdate.before(locLastMod)) flgPull = true;
+				if(mtpFile.lastUpdate.after(locLastMod)) flgPull = true;
 				
 				//optional, check size. If file size is the same, probably the same file even
 				//if modification dates are different

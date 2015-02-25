@@ -9,7 +9,7 @@ import java.util.Properties;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import com.netazoic.jmsync.itfc_Encoder.ENC_Format;
+import com.netazoic.jmsync.itfc.itfc_Encoder.ENC_Format;
 
 /*
  * Sync files between local workstation and MTP device (i.e., an Android phone)
@@ -29,6 +29,7 @@ public class MTPSync {
 	public static ENC_Format encFormat;
 	public static Boolean flgForce = false;
 	public static MTPSync_Action mtpAction;
+	public static MTPSync_Action mtpLastAction;
 	private static HashMap settings;
 
 	public enum MTPSync_Param{
@@ -85,8 +86,11 @@ public class MTPSync {
 
 		if(mtpAction!=null) return mtpAction;
 		else{
+			MTPSync_Action dfltAction;
+			if(mtpLastAction!=null) dfltAction=mtpLastAction;
+			else dfltAction = MTPSync_Action.push;
 			String[] options = {"push","pull","clearMTP","dirMTP"};
-			String actionString = SyncUtils.getInput("Sync Action?", options, MTPSync_Action.push.name());
+			String actionString = SyncUtils.getInput("Sync Action?", options, dfltAction.name());
 			mtpAction = MTPSync_Action.valueOf(actionString);
 		}
 
@@ -122,7 +126,7 @@ public class MTPSync {
 		locPath = props.getProperty(MTPSync_Param.dir_SYNC_LOCAL.name());
 		mtpPath = props.getProperty(MTPSync_Param.dir_SYNC_MTP.name());
 		String temp = props.getProperty(MTPSync_Param.mtpAction.name());
-		if(temp!=null) mtpAction = MTPSync_Action.valueOf(temp);
+		if(temp!=null) mtpLastAction = MTPSync_Action.valueOf(temp);
 		temp = props.getProperty(MTPSync_Param.flgEncode.name());
 		if(temp!=null) flgEncode = Boolean.parseBoolean(temp);
 		temp = props.getProperty(MTPSync_Param.encFormat.name());
