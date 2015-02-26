@@ -20,3 +20,7 @@ samples
 docs
 lib/jave-1.0.2
 conf/*.properties
+dist/conf/*.properties
+lib/ffmpeg-2.5.3
+lib/ffmpeg-20150212*
+lib/jave-1.0.2-src/
