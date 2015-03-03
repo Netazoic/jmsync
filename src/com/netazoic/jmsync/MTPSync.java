@@ -248,6 +248,7 @@ public class MTPSync {
 	public static void main(String[]args) throws Throwable{
 		setParams(args);
 		writeProperties();
+		GITSync git = new GITSync();
 
 		boolean flgLocal, flgMTP  = false;
 		//If action==copyFromPhone
@@ -269,12 +270,15 @@ public class MTPSync {
 				break;
 
 			}
+		git.pCode = pCode;	
+		git.run();
 		}catch(Exception ex){
 			System.out.print(ex.getMessage());
 			ex.printStackTrace();
 		}finally{
 			System.exit(0);
 		}
+		
 
 	}
 }

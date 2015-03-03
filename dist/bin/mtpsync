@@ -1,4 +1,5 @@
 #!/bin/bash
+JMSYNC_HOMEDIR="e:/git_working/netampg"
 
 PARAMS="$1 $2 $3"
 if [[ $# -eq 1 ]]; then
@@ -11,6 +12,6 @@ if [[ ($# -eq 2) && (($1 -eq "-pname") || ($1 -eq "-pName")) ]]; then
 fi
 
 #CP="./classes"
-CP="./dist/MTPSync-1.1.jar"
+CP="$JMSYNC_HOMEDIR/dist/JMSync-1.1.jar"
 
-java -cp $CP com.netazoic.netamtp.MTPSync $PARAMS
+java -cp $CP com.netazoic.jmsync.MTPSync $PARAMS

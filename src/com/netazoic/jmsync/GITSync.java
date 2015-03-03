@@ -92,6 +92,35 @@ public class GITSync {
 		GITUtils.pushFiles(repoPath,gitRemote,gitBranch);
 	}
 
+	public static void run() throws Throwable{
+		setParams();
+		try{
+			switch(gitAction){
+			case pull:
+				pullFiles();
+				break;
+			case push:
+				pushFiles();
+				break;
+			case update:
+				addFiles("*.ptf");
+				commitFiles();
+				break;
+			case add:
+				addFiles("*.ptf");
+				break;
+			case commit:
+			case ci:
+				commitFiles();
+				break;
+
+			}
+		}
+		catch(Exception ex){
+			throw ex;
+		}
+	}
+
 	public static void setCmdLineParams(String[] args){
 		int i=0;
 		if(args == null ) return;
@@ -184,29 +213,8 @@ public class GITSync {
 		//SyncUtils.getYesNo("Proceed with a git sync?", true);
 		//Uncomment above to create a wait state to allow attaching a remote debugger
 		setCmdLineParams(args);
-		setParams();
-
 		try{
-			switch(gitAction){
-			case pull:
-				pullFiles();
-				break;
-			case push:
-				pushFiles();
-				break;
-			case update:
-				addFiles("*.ptf");
-				commitFiles();
-				break;
-			case add:
-				addFiles("*.ptf");
-				break;
-			case commit:
-			case ci:
-				commitFiles();
-				break;
-
-			}
+			run();
 		}catch(Exception ex){
 			System.out.print(ex.getMessage());
 			ex.printStackTrace();
