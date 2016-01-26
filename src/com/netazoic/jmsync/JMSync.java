@@ -15,7 +15,7 @@ import com.netazoic.jmsync.itfc.itfc_Encoder.ENC_Format;
  * Sync files between local workstation and MTP device (i.e., an Android phone)
  * Optionally encode audio files on the way to MTP device
  */
-public class MTPSync {
+public class JMSync {
 
 	protected static String locPath;
 	protected static String mtpPath;
@@ -97,24 +97,23 @@ public class MTPSync {
 		return mtpAction;
 	}
 
-	public static boolean getEncoding(){
+	public static void getEncodingFormat(String fmtString){
+		/*
 		if(mtpAction.equals(MTPSync_Action.push)) flgEncode = true;
 		else flgEncode = false;
 		//if(mtpAction.equals(MTPSync_Action.push)) flgEncode = SyncUtils.getYesNo("Encode files before pushing?", flgEncode);
-		if(flgEncode){
+		 */
+		if(fmtString!=null){
+			encFormat = ENC_Format.valueOf(fmtString);
+		}
+		else{
 			String[] options = {"none","mp3","flac"};
 			String defaultOpt = encFormat!=null?encFormat.name():"flac";
 			String temp = SyncUtils.getInput("Encoding format:", options,defaultOpt);
 			if(temp == null) System.exit(1);
 			ENC_Format newFormat = ENC_Format.valueOf(temp);
 			encFormat = newFormat;
-			if(encFormat.equals(ENC_Format.none)){
-				flgEncode = false;
-				encPath = null;
-			}
-			else encPath = locPath + File.separator + encFormat.name();
 		}
-		return flgEncode;
 	}
 
 
@@ -171,6 +170,9 @@ public class MTPSync {
 			if(k.equals("pull")){
 				mtpAction=MTPSync_Action.pull;
 			}
+			if(k.equals("encFormat")){
+				getEncodingFormat(args[i+1]);
+			}
 			if(k.equals("-f")){
 				flgForce=true;
 			}
@@ -193,7 +195,7 @@ public class MTPSync {
 		if(propFileName == null) propFileName = "conf/" + pCode + ".properties";
 		props = getProperties(propFileName);
 		mtpAction = getAction();
-		getEncoding();
+		if(flgEncode && encFormat == null) getEncodingFormat(null);
 		setProjectPaths();
 	}
 
@@ -213,6 +215,12 @@ public class MTPSync {
 				if(mtpPath==null) System.exit(1);
 				//MTPUtils.verifyMTPDir(mtpPath);
 			}
+			if(encFormat == null || encFormat.equals(ENC_Format.none)){
+				flgEncode = false;
+				encPath = null;
+			}
+			else encPath = locPath + File.separator + encFormat.name();
+
 
 	}
 

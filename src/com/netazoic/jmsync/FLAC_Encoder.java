@@ -37,6 +37,8 @@ public class FLAC_Encoder extends Encoder<FLAC_Encoder> implements itfc_Encoder 
             	flac.encode(temp, tgt);
         	}catch(IOException ex){
         		throw ex;
+        	}catch(Exception ex){
+        		throw ex;
         	}finally{
         		if(temp != null) temp.delete();
         	}

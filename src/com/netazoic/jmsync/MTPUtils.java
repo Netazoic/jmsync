@@ -196,6 +196,7 @@ public class MTPUtils {
 	
 	public static void pushSyncFilesADB(String locPath,String mtpPath) throws Throwable{
 		//push any updated files to phone
+		mtpPath = mtpPath.replaceAll("'", "-");
 		File mtpDir = new File(mtpPath);
 		int ctPush=0;
 		File srcDir = new File(locPath);
