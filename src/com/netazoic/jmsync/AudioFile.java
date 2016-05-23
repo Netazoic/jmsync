@@ -55,6 +55,8 @@ public class AudioFile extends File {
 		AudioFileFormat.Type	targetFileType = sourceFileFormat.getType();
 
 		//File targetFile = new File(fTargetSampleRate.toString() + "_" + this.getName());
+		
+		//TODO allow specifying TMP directory as third argument to createTempFile
 		File targetFile = File.createTempFile("rate_converter_", "." +targetFileType.getExtension());
 
 
@@ -115,6 +117,7 @@ public class AudioFile extends File {
 		int	nWrittenBytes = 0;
 		nWrittenBytes = AudioSystem.write(targetStream, targetFileType, targetFile);
 		if (DEBUG) { out("Written bytes: " + nWrittenBytes); }
+		sourceStream.close();
 		return targetFile;
 	}
 	

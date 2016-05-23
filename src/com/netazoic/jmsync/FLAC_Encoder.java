@@ -40,7 +40,16 @@ public class FLAC_Encoder extends Encoder<FLAC_Encoder> implements itfc_Encoder 
         	}catch(Exception ex){
         		throw ex;
         	}finally{
-        		if(temp != null) temp.delete();
+        		boolean flgDeleted = false, flgWritable = false;
+        		if(temp != null) {
+        			flgWritable = temp.canWrite();
+        			flgDeleted = temp.delete();
+        			
+        			if(!flgDeleted){
+        				System.out.println("temp file scheduled for deletion: " + temp.getAbsolutePath());
+        				temp.deleteOnExit();
+        			}
+        		}
         	}
         }
         else{
