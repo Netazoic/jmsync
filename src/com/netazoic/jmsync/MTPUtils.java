@@ -13,6 +13,8 @@ import java.util.Map;
 public class MTPUtils {
     private static final String[] WIN_RUNTIME = { "cmd.exe", "/C" };
     private static final String[] OS_LINUX_RUNTIME = { "/bin/bash", "-l", "-c" };
+    
+    static boolean flgDebug = false;
 
     private MTPUtils() {
     }
@@ -25,14 +27,14 @@ public class MTPUtils {
     
 	private static boolean checkPathExists(String mtpPath) {
 		String cmd = "adb shell \"if [ -d  \'" + mtpPath + "\' ]; then echo \'1\'; else echo \'0\'; fi;\" ";
-		List<String>rtn = SyncUtils.runProcess(true, cmd);
+		List<String>rtn = SyncUtils.runProcess(flgDebug, cmd);
 		if(rtn.get(0).equals("1")) return true;
 		else return false;
 	}
 
 	private static void copyFilesADB(String srcPath,String destPath) throws Throwable{
 		String cmd = "adb push \"" +  srcPath + "\" \"" + destPath + "\"";
-		List<String> ret = SyncUtils.runProcess(true, cmd);
+		List<String> ret = SyncUtils.runProcess(flgDebug, cmd);
 
 		//seeFiles(null);
 
@@ -40,7 +42,7 @@ public class MTPUtils {
     
     private static List<String> getADBDir(String dir) {
 		String cmd = "adb shell ls -ls \"" + dir + "\"";
-		List<String> destDirList = SyncUtils.runProcess(true, cmd);
+		List<String> destDirList = SyncUtils.runProcess(flgDebug, cmd);
 		//Check for connection errors
 		String string1 = destDirList.get(0);
 		if(!string1.startsWith("total")){
@@ -125,7 +127,7 @@ public class MTPUtils {
 
 	private static void mkDir(String mtpPath) {
 		String cmd = "adb shell \"mkdir \'" + mtpPath + "\'\"";
-		List<String>rtn = SyncUtils.runProcess(true, cmd);
+		List<String>rtn = SyncUtils.runProcess(flgDebug, cmd);
 	}
 	
 	public static void rm (String mtpPath){
@@ -138,7 +140,7 @@ public class MTPUtils {
 		//SyncUtils.runProcess(true, cmd);
 		String cmd = "adb pull \"" + mtpPath + "\" \"" + locPath + "\"";
 	
-		SyncUtils.runProcess(true, cmd);
+		SyncUtils.runProcess(flgDebug, cmd);
 	}
 	
 	
@@ -184,7 +186,7 @@ public class MTPUtils {
 				System.out.println("Pulling " + mtpFile.fName + " to " +  locDir.getName());
 				cmd = "adb pull \"" + mtpPath + "/" + mtpFile.fName + "\" \"" + locPath + "\"";
 
-				List<String> ret2 = SyncUtils.runProcess(true, cmd);
+				List<String> ret2 = SyncUtils.runProcess(flgDebug, cmd);
 			}
 		}
 		System.out.println("Pulled " + ctPull + " files from MTP source.");
@@ -217,6 +219,9 @@ public class MTPUtils {
 		FileMTP mtpFile;
 		File[] fileList = srcDir.listFiles();
 		boolean flgPush = false;
+		System.out.println("------------------------------");
+		System.out.println("Pushing files to " + mtpPath);
+		System.out.println("------------------------------");
 		for (File locFile : fileList){
 			flgPush = false;
 			String n = locFile.getName();
@@ -229,9 +234,9 @@ public class MTPUtils {
 			if(mtpFile != null && mtpFile.fSize == locFile.length()) flgPush = false;
 			if(flgPush){
 				ctPush++;
-				System.out.println("Pushing " + locFile.getName() + " to " + mtpPath);
+				System.out.println("Pushing " + locFile.getName());
 				cmd = "adb push \"" +  locPath + File.separator + locFile.getName() + "\" \"" + mtpPath + "\"";
-				List<String> ret2 = SyncUtils.runProcess(true, cmd);
+				List<String> ret2 = SyncUtils.runProcess(flgDebug, cmd);
 			}
 		}
 		System.out.println("Pushed " + ctPush + " files to MTP location.");

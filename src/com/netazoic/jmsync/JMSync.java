@@ -40,7 +40,7 @@ public class JMSync {
 	}
 
 	public enum MTPSync_Action{
-		push,pull,clearMTP,dirMTP
+		push,pull,clearMTP,dirMTP,encode
 	}
 
 
@@ -59,6 +59,9 @@ public class JMSync {
 		enc.encFormat = encFormat;
 		String tgtPath;
 		try{
+			System.out.println("------------------------------");
+			System.out.println("Encoding Files");
+			System.out.println("------------------------------");
 			for(File f : files){
 				if(f.isDirectory()) continue;
 				tgtPath = encPath + File.separator + f.getName().replace(".wav", "." + enc.getExtension());
@@ -68,7 +71,10 @@ public class JMSync {
 				if(!flgForce && tgt.exists()){
 					dTgt = new Date(tgt.lastModified());
 					dSrc = new Date(f.lastModified());
-					if(dTgt.after(dSrc) || dTgt.equals(dSrc)) continue;
+					if(dTgt.after(dSrc) || dTgt.equals(dSrc)){
+						out(f.getName() + " already encoded. Skipping.");
+						continue;
+					}
 				}
 				System.out.println("Encoding " +f.getName());
 				enc.encodeFile(f, tgt);
@@ -89,7 +95,7 @@ public class JMSync {
 			MTPSync_Action dfltAction;
 			if(mtpLastAction!=null) dfltAction=mtpLastAction;
 			else dfltAction = MTPSync_Action.push;
-			String[] options = {"push","pull","clearMTP","dirMTP"};
+			String[] options = {"push","pull","encode","clearMTP","dirMTP"};
 			String actionString = SyncUtils.getInput("Sync Action?", options, dfltAction.name());
 			mtpAction = MTPSync_Action.valueOf(actionString);
 		}
@@ -268,6 +274,11 @@ public class JMSync {
 			case push:
 				if(flgEncode) encodeFiles(locPath,encPath,false);
 				pushMTPFiles();
+				git.pCode = pCode;
+				git.run();
+				break;
+			case encode:
+				encodeFiles(locPath,encPath,false);
 				break;
 			case clearMTP:
 				clearMTPDir();
@@ -278,8 +289,6 @@ public class JMSync {
 				break;
 
 			}
-		git.pCode = pCode;	
-		git.run();
 		}catch(Exception ex){
 			System.out.print(ex.getMessage());
 			ex.printStackTrace();

@@ -1,0 +1,17 @@
+#!/bin/bash
+JMSYNC_HOMEDIR="e:/git_working/netampg"
+
+PARAMS="$1 $2 $3"
+if [[ $# -eq 1 ]]; then
+	PNAME=$1
+	PARAMS="-pName $PNAME"
+fi
+if [[ ($# -eq 2) && (($1 -eq "-pname") || ($1 -eq "-pName")) ]]; then
+	PNAME=$2
+	PARAMS= "-pName $PNAME"
+fi
+
+#CP="./classes"
+CP="$JMSYNC_HOMEDIR/dist/JMSync-1.1.jar"
+
+java -cp $CP com.netazoic.jmsync.JMSync $PARAMS

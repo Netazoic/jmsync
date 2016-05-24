@@ -1,0 +1,11 @@
+#MTPSync Props
+#Wed Mar 04 09:37:31 PST 2015
+dir_REPO=E\:\\Audio Projects\\Meet The Moores
+dir_SYNC_LOCAL=E\:\\Audio Projects\\Meet The Moores\\_mixdown\\master\mp3
+flgEncode=false
+dir_SYNC_MTP=/storage/sdcard1/Music/JTM/Meet The Moores/_master/mp3
+gitBranch=master
+encFormat=flac
+pCode=mtm-mp3
+dir_ENCODED_FILES=E\:\\Audio Projects\\Meet The Moores\\_mixdown\\master\\mp3
+gitRemote=origin
